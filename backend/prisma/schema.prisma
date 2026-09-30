@@ -1,0 +1,403 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleType {
+  SUPER_ADMIN
+  ADMIN
+  DISPATCHER
+  COURIER
+  CUSTOMER
+}
+
+enum CourierStatus {
+  OFFLINE
+  AVAILABLE
+  BUSY
+}
+
+enum OrderStatus {
+  NEW
+  ASSIGNED
+  COURIER_ACCEPTED
+  GOING_TO_PICKUP
+  ARRIVED_AT_PICKUP
+  PICKED_UP
+  OUT_FOR_DELIVERY
+  ARRIVED_AT_CUSTOMER
+  DELIVERED
+  FAILED_DELIVERY
+  CANCELLED
+  RETURN_REQUESTED
+  RETURNING
+  RETURNED
+}
+
+enum PaymentMethod {
+  CASH
+  COD
+  CARD
+  WALLET
+}
+
+enum CollectionStatus {
+  PENDING
+  RECONCILED
+  DISCREPANCY
+}
+
+enum ProofType {
+  OTP
+  PHOTO
+  SIGNATURE
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String?    @unique
+  phone        String     @unique
+  passwordHash String
+  name         String
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  userRoles       UserRole[]
+  courierProfile  Courier?
+  dispatchedOrders Order[]           @relation("DispatcherOrders")
+  auditLogs       AuditLog[]
+  deviceTokens    DeviceToken[]
+  notifications   Notification[]
+  statusChanges   OrderStatusHistory[]
+  assignedByMe    OrderAssignment[] @relation("AssignedBy")
+
+  @@index([phone])
+  @@index([email])
+}
+
+model Role {
+  id          String     @id @default(uuid())
+  name        RoleType   @unique
+  description String?
+  userRoles   UserRole[]
+  rolePermissions RolePermission[]
+}
+
+model Permission {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  description     String?
+  rolePermissions RolePermission[]
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model Customer {
+  id             String            @id @default(uuid())
+  name           String
+  phone          String            @unique
+  secondaryPhone String?
+  email          String?
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  addresses      CustomerAddress[]
+  orders         Order[]
+
+  @@index([phone])
+  @@index([name])
+}
+
+model CustomerAddress {
+  id         String   @id @default(uuid())
+  customerId String
+  label      String   @default("Home")
+  address    String
+  latitude   Float?
+  longitude  Float?
+  isDefault  Boolean  @default(false)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+}
+
+model Courier {
+  id                 String          @id @default(uuid())
+  userId             String          @unique
+  vehicleType        String          @default("MOTORCYCLE")
+  plateNumber        String?
+  status             CourierStatus   @default(OFFLINE)
+  isApproved         Boolean         @default(true)
+  currentLatitude    Float?
+  currentLongitude   Float?
+  lastLocationUpdate DateTime?
+  batteryLevel       Int?
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignments        OrderAssignment[]
+  orders             Order[]
+  locations          CourierLocation[]
+  earnings           CourierEarning[]
+  cashCollections    CashCollection[]
+
+  @@index([status])
+  @@index([userId])
+}
+
+model Order {
+  id                 String            @id @default(uuid())
+  orderNumber        String            @unique
+  trackingToken      String            @unique
+  customerId         String
+  customer           Customer          @relation(fields: [customerId], references: [id])
+  
+  pickupName         String
+  pickupPhone        String
+  pickupAddress      String
+  pickupLatitude     Float
+  pickupLongitude    Float
+  
+  deliveryAddress    String
+  deliveryLatitude   Float
+  deliveryLongitude  Float
+
+  packageDescription String
+  packageType        String            @default("STANDARD")
+  packageWeight      Float?
+
+  deliveryFee        Decimal           @db.Decimal(10, 2)
+  codAmount          Decimal           @default(0) @db.Decimal(10, 2)
+  paymentMethod      PaymentMethod     @default(COD)
+
+  courierId          String?
+  courier            Courier?          @relation(fields: [courierId], references: [id])
+  dispatcherId       String?
+  dispatcher         User?             @relation("DispatcherOrders", fields: [dispatcherId], references: [id])
+
+  priority           String            @default("NORMAL")
+  status             OrderStatus       @default(NEW)
+  notes              String?
+
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  assignedAt          DateTime?
+  acceptedAt          DateTime?
+  pickedUpAt          DateTime?
+  outForDeliveryAt    DateTime?
+  arrivedAtCustomerAt DateTime?
+  deliveredAt         DateTime?
+  cancelledAt         DateTime?
+
+  statusHistory       OrderStatusHistory[]
+  assignments         OrderAssignment[]
+  deliveryOtp         DeliveryOtp?
+  deliveryProofs      DeliveryProof[]
+  cashCollection      CashCollection?
+  earning             CourierEarning?
+
+  @@index([status])
+  @@index([orderNumber])
+  @@index([trackingToken])
+  @@index([courierId])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model OrderStatusHistory {
+  id          String      @id @default(uuid())
+  orderId     String
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  changedById String?
+  changedBy   User?       @relation(fields: [changedById], references: [id])
+  reason      String?
+  createdAt   DateTime    @default(now())
+
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+model OrderAssignment {
+  id              String    @id @default(uuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  courierId       String
+  courier         Courier   @relation(fields: [courierId], references: [id])
+  assignedById    String?
+  assignedBy      User?     @relation("AssignedBy", fields: [assignedById], references: [id])
+  assignedAt      DateTime  @default(now())
+  acceptedAt      DateTime?
+  rejectedAt      DateTime?
+  rejectionReason String?
+
+  @@index([orderId])
+  @@index([courierId])
+}
+
+model DeliveryOtp {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  otpHash         String
+  plainOtpForDev  String?
+  attempts        Int      @default(0)
+  maxAttempts     Int      @default(5)
+  isVerified      Boolean  @default(false)
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+}
+
+model DeliveryProof {
+  id           String    @id @default(uuid())
+  orderId      String
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type         ProofType
+  fileUrl      String?
+  notes        String?
+  uploadedById String?
+  createdAt    DateTime  @default(now())
+
+  @@index([orderId])
+}
+
+model CashCollection {
+  id                String           @id @default(uuid())
+  orderId           String           @unique
+  order             Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  courierId         String
+  courier           Courier          @relation(fields: [courierId], references: [id])
+  expectedAmount    Decimal          @db.Decimal(10, 2)
+  collectedAmount   Decimal          @db.Decimal(10, 2)
+  difference        Decimal          @default(0) @db.Decimal(10, 2)
+  status            CollectionStatus @default(PENDING)
+  discrepancyReason String?
+  reconciledById    String?
+  reconciledAt      DateTime?
+  createdAt         DateTime         @default(now())
+
+  @@index([courierId])
+  @@index([status])
+}
+
+model CourierEarning {
+  id           String    @id @default(uuid())
+  orderId      String    @unique
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  courierId    String
+  courier      Courier   @relation(fields: [courierId], references: [id])
+  baseFee      Decimal   @db.Decimal(10, 2)
+  distanceFee  Decimal   @default(0) @db.Decimal(10, 2)
+  bonus        Decimal   @default(0) @db.Decimal(10, 2)
+  totalEarning Decimal   @db.Decimal(10, 2)
+  isSettled    Boolean   @default(false)
+  settledAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([courierId])
+  @@index([createdAt])
+}
+
+model PricingRule {
+  id                   String   @id @default(uuid())
+  name                 String
+  minDistanceKm        Float
+  maxDistanceKm        Float
+  basePrice            Decimal  @db.Decimal(10, 2)
+  courierCutPercentage Float    @default(70.0)
+  fixedCourierCut      Decimal? @db.Decimal(10, 2)
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+}
+
+model CourierLocation {
+  id           String   @id @default(uuid())
+  courierId    String
+  courier      Courier  @relation(fields: [courierId], references: [id], onDelete: Cascade)
+  latitude     Float
+  longitude    Float
+  accuracy     Float?
+  heading      Float?
+  speed        Float?
+  batteryLevel Int?
+  timestamp    DateTime @default(now())
+
+  @@index([courierId, timestamp])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  data      Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String
+  platform  String   @default("mobile")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, token])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model AppSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+}

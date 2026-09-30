@@ -1,0 +1,228 @@
+{
+  "info": {
+    "name": "FAST MAN - Delivery Management API",
+    "description": "Production API collection for FAST MAN motorcycle delivery management platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "adminToken", "value": "" },
+    { "key": "courierToken", "value": "" },
+    { "key": "orderId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:4000/health"
+      }
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/admin/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@fastman.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Courier Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/courier/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+201000000011\",\n  \"password\": \"Courier123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders?page=1&limit=20",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Tarek Fathy\",\n  \"customerPhone\": \"+201012345678\",\n  \"pickupName\": \"McDonalds Maadi\",\n  \"pickupPhone\": \"+201099887766\",\n  \"pickupAddress\": \"Road 9, Maadi, Cairo\",\n  \"pickupLatitude\": 29.9601,\n  \"pickupLongitude\": 31.2589,\n  \"deliveryAddress\": \"15 Street 250, Degla, Maadi\",\n  \"deliveryLatitude\": 29.9654,\n  \"deliveryLongitude\": 31.2741,\n  \"packageDescription\": \"2x Big Tasty Meals\",\n  \"packageType\": \"FOOD\",\n  \"packageWeight\": 1.2,\n  \"deliveryFee\": 45,\n  \"codAmount\": 380,\n  \"paymentMethod\": \"COD\",\n  \"priority\": \"HIGH\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Assign Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders/{{orderId}}/assign",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courierId\": \"COURIER_UUID\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Courier Accept Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders/{{orderId}}/accept",
+            "header": [{ "key": "Authorization", "value": "Bearer {{courierToken}}" }]
+          }
+        },
+        {
+          "name": "Courier Update Status (GOING_TO_PICKUP)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/orders/{{orderId}}/status",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{courierToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"GOING_TO_PICKUP\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Delivery (OTP + COD)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders/{{orderId}}/verify-delivery",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{courierToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"4827\",\n  \"collectedAmount\": 380\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Couriers",
+      "item": [
+        {
+          "name": "List Couriers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/couriers",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          }
+        },
+        {
+          "name": "Toggle Availability",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/couriers/status",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{courierToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"AVAILABLE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Send GPS Location",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/couriers/location",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{courierToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357,\n  \"speed\": 32.5,\n  \"batteryLevel\": 85\n}"
+            }
+          }
+        },
+        {
+          "name": "Courier Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/couriers/me/stats",
+            "header": [{ "key": "Authorization", "value": "Bearer {{courierToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tracking",
+      "item": [
+        {
+          "name": "Public Tracking (No Login)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tracking/public/TRACKING_TOKEN"
+          }
+        },
+        {
+          "name": "Admin Live Fleet Map",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tracking/couriers/live",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Executive Summary",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/reports/summary?range=today",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "FAST MAN",
+    "slug": "fast-man",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "fastman",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0C"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fastman.delivery",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "FAST MAN requires GPS location to navigate deliveries and update customers.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "FAST MAN requires background GPS tracking during active deliveries for real-time fleet coordination."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0A0C"
+      },
+      "package": "com.fastman.delivery",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "POST_NOTIFICATIONS",
+        "CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow FAST MAN to use your location for delivery dispatching and live navigation."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
