@@ -1,25 +1,24 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { COLORS } from '../../src/constants/theme';
 import { useSettingsStore } from '../../src/store/settingsStore';
-import { LayoutDashboard, Package, Bike, MapPin, BarChart3 } from 'lucide-react-native';
+import { LayoutDashboard, Package, Bike, MapPin, BarChart3, Building2 } from 'lucide-react-native';
 
 export default function AdminLayout() {
-  const { t } = useSettingsStore();
+  const { t, colors, language } = useSettingsStore();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: COLORS.surface,
-          borderTopColor: COLORS.border,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '700',
@@ -31,6 +30,13 @@ export default function AdminLayout() {
         options={{
           title: t.tabDashboard,
           tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="companies"
+        options={{
+          title: language === 'ar' ? 'الشركات (SaaS)' : 'Companies',
+          tabBarIcon: ({ color, size }) => <Building2 size={size} color={color} />,
         }}
       />
       <Tabs.Screen

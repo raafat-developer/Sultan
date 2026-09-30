@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FastManLogo } from '../../src/components/FastManLogo';
 import { Button } from '../../src/components/Button';
 import { LanguageToggle } from '../../src/components/LanguageToggle';
+import { ThemeToggle } from '../../src/components/ThemeToggle';
 import { useAuthStore } from '../../src/store/authStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
 import { api } from '../../src/services/api';
@@ -24,7 +25,7 @@ import { Bike, ShieldCheck, Phone, Lock, Mail } from 'lucide-react-native';
 export default function LoginScreen() {
   const router = useRouter();
   const { setAuth } = useAuthStore();
-  const { t, isRTL } = useSettingsStore();
+  const { t, isRTL, colors } = useSettingsStore();
 
   const [mode, setMode] = useState<'courier' | 'staff'>('courier');
   const [phone, setPhone] = useState('+201000000011');
@@ -78,7 +79,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
@@ -89,17 +90,30 @@ export default function LoginScreen() {
         >
           {/* Header Bar */}
           <View style={styles.topBar}>
-            <LanguageToggle />
+            <TouchableOpacity
+              style={[
+                styles.customerTrackPill,
+                { backgroundColor: colors.surfaceElevated, borderColor: colors.primary }
+              ]}
+              onPress={() => router.push('/track' as any)}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.customerTrackPillText, { color: colors.primary }]}>📦 {t.trackOrder}</Text>
+            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ThemeToggle />
+              <LanguageToggle />
+            </View>
           </View>
 
           {/* Logo */}
           <View style={styles.logoSection}>
             <FastManLogo size="lg" />
-            <Text style={styles.welcomeSubtitle}>{t.welcomeBack}</Text>
+            <Text style={[styles.welcomeSubtitle, { color: colors.textSecondary }]}>{t.welcomeBack}</Text>
           </View>
 
           {/* Mode Switcher Tabs */}
-          <View style={styles.modeContainer}>
+          <View style={[styles.modeContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => {
@@ -109,11 +123,11 @@ export default function LoginScreen() {
               }}
               style={[styles.modeTab, mode === 'courier' && styles.activeTab]}
             >
-              <Bike size={18} color={mode === 'courier' ? COLORS.white : COLORS.textMuted} />
+              <Bike size={18} color={mode === 'courier' ? '#FFFFFF' : colors.textMuted} />
               <Text
                 style={[
                   styles.modeTabText,
-                  mode === 'courier' && styles.activeTabText,
+                  { color: mode === 'courier' ? '#FFFFFF' : colors.textMuted },
                 ]}
               >
                 {t.courierLogin}
@@ -131,12 +145,12 @@ export default function LoginScreen() {
             >
               <ShieldCheck
                 size={18}
-                color={mode === 'staff' ? COLORS.white : COLORS.textMuted}
+                color={mode === 'staff' ? '#FFFFFF' : colors.textMuted}
               />
               <Text
                 style={[
                   styles.modeTabText,
-                  mode === 'staff' && styles.activeTabText,
+                  { color: mode === 'staff' ? '#FFFFFF' : colors.textMuted },
                 ]}
               >
                 {t.staffLogin}
@@ -145,7 +159,7 @@ export default function LoginScreen() {
           </View>
 
           {/* Form */}
-          <View style={styles.formContainer}>
+          <View style={[styles.formContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             {errorMsg && (
               <View style={styles.errorBox}>
                 <Text style={styles.errorText}>{errorMsg}</Text>
@@ -154,15 +168,15 @@ export default function LoginScreen() {
 
             {mode === 'courier' ? (
               <View style={styles.inputGroup}>
-                <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+                <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left', color: colors.textSecondary }]}>
                   {t.phone}
                 </Text>
-                <View style={styles.inputWrapper}>
-                  <Phone size={18} color={COLORS.textMuted} style={styles.inputIcon} />
+                <View style={[styles.inputWrapper, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
+                  <Phone size={18} color={colors.textMuted} style={styles.inputIcon} />
                   <TextInput
-                    style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+                    style={[styles.input, { textAlign: isRTL ? 'right' : 'left', color: colors.text }]}
                     placeholder="+201000000011"
-                    placeholderTextColor={COLORS.textMuted}
+                    placeholderTextColor={colors.textMuted}
                     value={phone}
                     onChangeText={setPhone}
                     keyboardType="phone-pad"
@@ -172,15 +186,15 @@ export default function LoginScreen() {
               </View>
             ) : (
               <View style={styles.inputGroup}>
-                <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+                <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left', color: colors.textSecondary }]}>
                   {t.email}
                 </Text>
-                <View style={styles.inputWrapper}>
-                  <Mail size={18} color={COLORS.textMuted} style={styles.inputIcon} />
+                <View style={[styles.inputWrapper, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
+                  <Mail size={18} color={colors.textMuted} style={styles.inputIcon} />
                   <TextInput
-                    style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+                    style={[styles.input, { textAlign: isRTL ? 'right' : 'left', color: colors.text }]}
                     placeholder="admin@fastman.com"
-                    placeholderTextColor={COLORS.textMuted}
+                    placeholderTextColor={colors.textMuted}
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -191,15 +205,15 @@ export default function LoginScreen() {
             )}
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left', color: colors.textSecondary }]}>
                 {t.password}
               </Text>
-              <View style={styles.inputWrapper}>
-                <Lock size={18} color={COLORS.textMuted} style={styles.inputIcon} />
+              <View style={[styles.inputWrapper, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
+                <Lock size={18} color={colors.textMuted} style={styles.inputIcon} />
                 <TextInput
-                  style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+                  style={[styles.input, { textAlign: isRTL ? 'right' : 'left', color: colors.text }]}
                   placeholder="••••••••"
-                  placeholderTextColor={COLORS.textMuted}
+                  placeholderTextColor={colors.textMuted}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -216,32 +230,32 @@ export default function LoginScreen() {
             />
 
             {/* Instant Demo Accounts */}
-            <View style={styles.demoSection}>
-              <Text style={styles.demoTitle}>QUICK DEMO ACCOUNTS (1-TAP)</Text>
+            <View style={[styles.demoSection, { borderTopColor: colors.border }]}>
+              <Text style={[styles.demoTitle, { color: colors.textMuted }]}>QUICK DEMO ACCOUNTS (1-TAP)</Text>
               <View style={styles.demoButtonsRow}>
                 <TouchableOpacity
-                  style={styles.demoChip}
+                  style={[styles.demoChip, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
                   onPress={() => fillCourierDemo(1)}
                 >
-                  <Text style={styles.demoChipText}>🛵 Ahmed (Available)</Text>
+                  <Text style={[styles.demoChipText, { color: colors.textSecondary }]}>🛵 Ahmed (Available)</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.demoChip}
+                  style={[styles.demoChip, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
                   onPress={() => fillCourierDemo(2)}
                 >
-                  <Text style={styles.demoChipText}>🛵 Mohamed (Busy)</Text>
+                  <Text style={[styles.demoChipText, { color: colors.textSecondary }]}>🛵 Mohamed (Busy)</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.demoChip}
+                  style={[styles.demoChip, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
                   onPress={() => fillAdminDemo('admin')}
                 >
-                  <Text style={styles.demoChipText}>🛡️ Admin</Text>
+                  <Text style={[styles.demoChipText, { color: colors.textSecondary }]}>🛡️ Admin</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.demoChip}
+                  style={[styles.demoChip, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
                   onPress={() => fillAdminDemo('dispatcher')}
                 >
-                  <Text style={styles.demoChipText}>📡 Dispatcher</Text>
+                  <Text style={[styles.demoChipText, { color: colors.textSecondary }]}>📡 Dispatcher</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -266,8 +280,22 @@ const styles = StyleSheet.create({
   },
   topBar: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: SPACING.sm,
+  },
+  customerTrackPill: {
+    backgroundColor: '#1E2638',
+    borderColor: '#00E5FF',
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+  },
+  customerTrackPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#00E5FF',
   },
   logoSection: {
     alignItems: 'center',

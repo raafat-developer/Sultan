@@ -1,4 +1,39 @@
-export const COLORS = {
+export const LIGHT_COLORS = {
+  // Backgrounds
+  background: '#F8FAFC', // Slate 50 clean light background
+  surface: '#FFFFFF',     // Pure white card surfaces
+  surfaceElevated: '#F1F5F9', // Slate 100 elevated sections
+  surfaceHover: '#E2E8F0',
+
+  // Brand Primaries
+  primary: '#E50914', // Fast Man Racing Crimson Red
+  primaryDark: '#B91C1C',
+  primaryLight: '#EF4444',
+  primaryGlow: 'rgba(229, 9, 20, 0.12)',
+
+  // Neutrals
+  white: '#FFFFFF',
+  text: '#0F172A',        // Slate 900 primary high contrast
+  textSecondary: '#334155', // Slate 700
+  textMuted: '#64748B',     // Slate 500
+  border: '#E2E8F0',        // Slate 200 clean border
+  borderLight: '#CBD5E1',
+
+  // Statuses
+  success: '#059669',
+  successGlow: 'rgba(5, 150, 105, 0.12)',
+  warning: '#D97706',
+  warningGlow: 'rgba(217, 119, 6, 0.12)',
+  danger: '#DC2626',
+  dangerGlow: 'rgba(220, 38, 38, 0.12)',
+  info: '#2563EB',
+
+  // Accents
+  motorcycleBlack: '#0F172A',
+  goldAccent: '#D97706',
+};
+
+export const DARK_COLORS = {
   // Backgrounds
   background: '#0B0B0E',
   surface: '#13131A',
@@ -6,7 +41,7 @@ export const COLORS = {
   surfaceHover: '#232330',
 
   // Brand Primaries
-  primary: '#E50914', // Fast Man Racing Crimson Red
+  primary: '#E50914',
   primaryDark: '#B91C1C',
   primaryLight: '#EF4444',
   primaryGlow: 'rgba(229, 9, 20, 0.25)',
@@ -33,6 +68,9 @@ export const COLORS = {
   goldAccent: '#FBBF24',
 };
 
+// LIGHT THEME IS DEFAULT AS REQUESTED BY USER
+export const COLORS = LIGHT_COLORS;
+
 export const SPACING = {
   xs: 4,
   sm: 8,
@@ -53,23 +91,23 @@ export const RADIUS = {
 export const SHADOWS = {
   sm: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
     elevation: 2,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6.27,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 4,
   },
   glow: {
     shadowColor: '#E50914',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.45,
+    shadowOpacity: 0.35,
     shadowRadius: 10,
-    elevation: 8,
+    elevation: 6,
   },
 };

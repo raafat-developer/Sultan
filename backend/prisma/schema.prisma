@@ -57,8 +57,44 @@ enum ProofType {
   SIGNATURE
 }
 
+enum CompanyStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+  EXPIRED
+}
+
+model Company {
+  id                String        @id @default(uuid())
+  name              String
+  slug              String        @unique
+  licenseKey        String        @unique
+  status            CompanyStatus @default(ACTIVE)
+  plan              String        @default("PRO")
+  logoUrl           String?
+  brandColor        String?       @default("#E50914")
+  contactEmail      String
+  contactPhone      String
+  address           String?
+  maxCouriers       Int           @default(50)
+  maxOrdersPerMonth Int           @default(5000)
+  licenseExpiresAt  DateTime
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  users             User[]
+  couriers          Courier[]
+  orders            Order[]
+  customers         Customer[]
+
+  @@index([slug])
+  @@index([licenseKey])
+}
+
 model User {
   id           String     @id @default(uuid())
+  companyId    String?
+  company      Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
   email        String?    @unique
   phone        String     @unique
   passwordHash String
@@ -78,6 +114,7 @@ model User {
 
   @@index([phone])
   @@index([email])
+  @@index([companyId])
 }
 
 model Role {
@@ -119,6 +156,8 @@ model RolePermission {
 
 model Customer {
   id             String            @id @default(uuid())
+  companyId      String?
+  company        Company?          @relation(fields: [companyId], references: [id], onDelete: SetNull)
   name           String
   phone          String            @unique
   secondaryPhone String?
@@ -131,6 +170,7 @@ model Customer {
 
   @@index([phone])
   @@index([name])
+  @@index([companyId])
 }
 
 model CustomerAddress {
@@ -148,6 +188,8 @@ model CustomerAddress {
 
 model Courier {
   id                 String          @id @default(uuid())
+  companyId          String?
+  company            Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
   userId             String          @unique
   vehicleType        String          @default("MOTORCYCLE")
   plateNumber        String?
@@ -166,10 +208,13 @@ model Courier {
 
   @@index([status])
   @@index([userId])
+  @@index([companyId])
 }
 
 model Order {
   id                 String            @id @default(uuid())
+  companyId          String?
+  company            Company?          @relation(fields: [companyId], references: [id], onDelete: SetNull)
   orderNumber        String            @unique
   trackingToken      String            @unique
   customerId         String

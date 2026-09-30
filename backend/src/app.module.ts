@@ -22,6 +22,7 @@ import { ReportsModule } from './reports/reports.module';
 import { SettingsModule } from './settings/settings.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { HealthModule } from './health/health.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { HealthModule } from './health/health.module';
     SettingsModule,
     NotificationsModule,
     HealthModule,
+    CompaniesModule,
   ],
 })
 export class AppModule {}

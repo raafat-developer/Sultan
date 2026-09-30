@@ -4,8 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuthStore } from '../src/store/authStore';
+import { useSettingsStore } from '../src/store/settingsStore';
 import { socketService } from '../src/services/socket';
-import { COLORS } from '../src/constants/theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +18,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const loadSession = useAuthStore((state) => state.loadSession);
+  const { theme, colors } = useSettingsStore();
 
   useEffect(() => {
     loadSession();
@@ -31,11 +32,11 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" backgroundColor={COLORS.background} />
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} backgroundColor={colors.background} />
         <Stack
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: COLORS.background },
+            contentStyle: { backgroundColor: colors.background },
             animation: 'slide_from_right',
           }}
         >
@@ -48,8 +49,8 @@ export default function RootLayout() {
             options={{
               presentation: 'modal',
               headerShown: true,
-              headerStyle: { backgroundColor: COLORS.surface },
-              headerTintColor: COLORS.white,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTintColor: colors.text,
               title: 'Order Details',
             }}
           />

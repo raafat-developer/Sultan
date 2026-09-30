@@ -1,25 +1,24 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { COLORS } from '../../src/constants/theme';
 import { useSettingsStore } from '../../src/store/settingsStore';
 import { Home, Package, DollarSign, User } from 'lucide-react-native';
 
 export default function CourierLayout() {
-  const { t } = useSettingsStore();
+  const { t, colors } = useSettingsStore();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: COLORS.surface,
-          borderTopColor: COLORS.border,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '700',

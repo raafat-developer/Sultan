@@ -1,18 +1,25 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { COLORS, RADIUS, SHADOWS, SPACING } from '../constants/theme';
+import { useSettingsStore } from '../store/settingsStore';
+import { RADIUS, SHADOWS, SPACING } from '../constants/theme';
 
 interface CardProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
   highlight?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({ children, style, highlight = false }) => {
+  const { colors } = useSettingsStore();
+
   return (
     <View
       style={[
         styles.card,
+        {
+          backgroundColor: highlight ? colors.surfaceElevated : colors.surface,
+          borderColor: highlight ? colors.primaryDark : colors.border,
+        },
         highlight && styles.highlight,
         style,
       ]}
@@ -24,19 +31,14 @@ export const Card: React.FC<CardProps> = ({ children, style, highlight = false }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
     ...SHADOWS.sm,
   },
   highlight: {
-    borderColor: COLORS.primaryDark,
-    backgroundColor: COLORS.surfaceElevated,
-    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 4,
   },

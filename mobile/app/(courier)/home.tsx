@@ -17,6 +17,10 @@ import { Card } from '../../src/components/Card';
 import { Button } from '../../src/components/Button';
 import { Badge } from '../../src/components/Badge';
 import { LanguageToggle } from '../../src/components/LanguageToggle';
+import { ThemeToggle } from '../../src/components/ThemeToggle';
+import { CompanyWorkspaceHeader } from '../../src/components/CompanyWorkspaceHeader';
+import { GpsRouteSimulator } from '../../src/components/GpsRouteSimulator';
+import { IncomingOrderPushModal } from '../../src/components/IncomingOrderPushModal';
 import { useAuthStore } from '../../src/store/authStore';
 import { useCourierStore } from '../../src/store/courierStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
@@ -35,16 +39,22 @@ import {
   ChevronRight,
   MapPin,
   ArrowRight,
+  Bell,
+  Wallet,
+  Zap,
+  Star,
+  Award,
 } from 'lucide-react-native';
 
 export default function CourierHomeScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { status, setStatus, currentDelivery, setCurrentDelivery } = useCourierStore();
-  const { t, isRTL } = useSettingsStore();
+  const { t, isRTL, colors, language } = useSettingsStore();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+  const [showPushModal, setShowPushModal] = useState(false);
   const [stats, setStats] = useState({
     todayOrders: 0,
     completedToday: 0,
@@ -133,30 +143,75 @@ export default function CourierHomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         {/* Top Header */}
         <View style={styles.header}>
           <FastManLogo size="sm" subtitle={false} />
           <View style={styles.headerActions}>
+            <ThemeToggle />
+            <TouchableOpacity
+              style={[styles.customerTrackBtn, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary }]}
+              onPress={() => router.push('/track' as any)}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.customerTrackText, { color: colors.primary }]}>🔍 {t.trackOrder}</Text>
+            </TouchableOpacity>
             <LanguageToggle />
           </View>
         </View>
+
+        {/* Tenant B2B SaaS Company Workspace Bar */}
+        <CompanyWorkspaceHeader />
+
+        {/* Courier Commercial Shift & Vault Bar */}
+        <Card style={styles.shiftVaultCard}>
+          <View style={styles.shiftVaultRow}>
+            <View style={styles.vaultLeftCol}>
+              <View style={styles.vaultTitleRow}>
+                <Wallet size={15} color={colors.goldAccent} />
+                <Text style={[styles.vaultTitle, { color: colors.textSecondary }]}>
+                  {language === 'ar' ? 'عهدة التحصيل (Cash in Hand)' : 'Cash in Hand (COD Vault)'}
+                </Text>
+              </View>
+              <Text style={[styles.vaultAmount, { color: colors.goldAccent }]}>2,450.00 ج</Text>
+              <Text style={[styles.vaultSub, { color: colors.textMuted }]}>
+                {language === 'ar' ? 'جاهزة للتوريد لخزينة الفرع' : 'Ready to remit to hub cashier'}
+              </Text>
+            </View>
+
+            <View style={styles.vaultActionCol}>
+              <TouchableOpacity
+                onPress={() => Alert.alert('💰 توريد العهدة النقدية', 'تم تسجيل طلب توريد 2,450 ج لخزينة الفرع. يرجى تسليم المبلغ لأمين الخزينة واستلام إيصال الإيداع.')}
+                style={[styles.remitBtn, { backgroundColor: colors.primary }]}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.remitBtnText}>
+                  {language === 'ar' ? 'توريد للفرع' : 'Remit Cash'}
+                </Text>
+              </TouchableOpacity>
+              <View style={styles.slaBadgeRow}>
+                <Zap size={11} color={colors.success} />
+                <Text style={[styles.slaRateText, { color: colors.success }]}>SLA 99.2%</Text>
+              </View>
+            </View>
+          </View>
+        </Card>
 
         {/* Courier Big Status Banner & Toggle */}
         <Card style={styles.statusCard}>
           <View style={styles.statusRow}>
             <View>
-              <Text style={styles.welcomeText}>
+              <Text style={[styles.welcomeText, { color: colors.text }]}>
                 {user?.name ? `${t.welcomeBack}, ${user.name.split(' ')[0]}` : 'Courier'}
               </Text>
-              <Text style={styles.vehicleInfo}>
+              <Text style={[styles.vehicleInfo, { color: colors.textMuted }]}>
                 🛵 {user?.vehicleType || 'MOTORCYCLE'} {user?.plateNumber ? `• ${user.plateNumber}` : ''}
               </Text>
             </View>
@@ -169,46 +224,71 @@ export default function CourierHomeScreen() {
             disabled={isTogglingStatus}
             style={[
               styles.toggleBtn,
-              isOnline ? styles.toggleBtnOnline : styles.toggleBtnOffline,
+              isOnline ? styles.toggleBtnOnline : [styles.toggleBtnOffline, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }],
             ]}
           >
-            <Power size={22} color={COLORS.white} />
+            <Power size={22} color="#FFFFFF" />
             <Text style={styles.toggleBtnText}>
               {isOnline ? t.online : t.offline}
             </Text>
           </TouchableOpacity>
         </Card>
 
+        {/* Live Push Notification Simulation Banner */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => setShowPushModal(true)}
+          style={[
+            styles.pushBanner,
+            { backgroundColor: colors.surface, borderColor: colors.border }
+          ]}
+        >
+          <View style={styles.pushBannerLeft}>
+            <View style={[styles.pushIconCircle, { backgroundColor: 'rgba(229, 9, 20, 0.12)' }]}>
+              <Bell size={20} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.pushBannerTitle, { color: colors.text }]}>
+                {language === 'ar' ? '🔔 تجربة إشعار الطلب المباشر (Push)' : '🔔 Test Live Order Push Modal'}
+              </Text>
+              <Text style={[styles.pushBannerDesc, { color: colors.textMuted }]}>
+                {language === 'ar' ? 'إشعار شاشة القفل مع صوت وعداد 30 ثانية' : 'Lock screen incoming order banner with 30s timer'}
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={18} color={colors.textMuted} />
+        </TouchableOpacity>
+
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <Card style={styles.statBox}>
-            <Package size={20} color={COLORS.primary} />
-            <Text style={styles.statNumber}>{stats.todayOrders}</Text>
-            <Text style={styles.statLabel}>{t.todayOrders}</Text>
+            <Package size={20} color={colors.primary} />
+            <Text style={[styles.statNumber, { color: colors.text }]}>{stats.todayOrders}</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t.todayOrders}</Text>
           </Card>
 
           <Card style={styles.statBox}>
-            <CheckCircle2 size={20} color={COLORS.success} />
-            <Text style={styles.statNumber}>{stats.completedToday}</Text>
-            <Text style={styles.statLabel}>{t.completed}</Text>
+            <CheckCircle2 size={20} color={colors.success} />
+            <Text style={[styles.statNumber, { color: colors.text }]}>{stats.completedToday}</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t.completed}</Text>
           </Card>
 
           <Card style={styles.statBox}>
-            <Clock size={20} color={COLORS.warning} />
-            <Text style={styles.statNumber}>{stats.pendingToday}</Text>
-            <Text style={styles.statLabel}>{t.pending}</Text>
+            <Clock size={20} color={colors.warning} />
+            <Text style={[styles.statNumber, { color: colors.text }]}>{stats.pendingToday}</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t.pending}</Text>
           </Card>
 
           <Card style={styles.statBox}>
-            <DollarSign size={20} color={COLORS.goldAccent} />
-            <Text style={styles.statNumber}>{stats.todayEarnings}</Text>
-            <Text style={styles.statLabel}>{t.currency}</Text>
+            <DollarSign size={20} color={colors.goldAccent} />
+            <Text style={[styles.statNumber, { color: colors.text }]}>{stats.todayEarnings}</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t.currency}</Text>
           </Card>
         </View>
 
         {/* Current Active Delivery Section */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t.currentDelivery}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t.currentDelivery}</Text>
         </View>
 
         {currentDelivery ? (
@@ -220,6 +300,14 @@ export default function CourierHomeScreen() {
               </View>
               <Badge status={currentDelivery.status} />
             </View>
+
+            {/* Live GPS Route Simulator */}
+            <GpsRouteSimulator
+              pickupName={currentDelivery.pickupName}
+              deliveryAddress={currentDelivery.deliveryAddress}
+              status={currentDelivery.status}
+              orderNumber={currentDelivery.orderNumber}
+            />
 
             {/* Route Points */}
             <View style={styles.routeContainer}>
@@ -308,6 +396,19 @@ export default function CourierHomeScreen() {
           </Card>
         )}
       </ScrollView>
+
+      {/* High-priority Lock Screen Push Modal */}
+      <IncomingOrderPushModal
+        visible={showPushModal}
+        onClose={() => setShowPushModal(false)}
+        onAccept={(orderId) => {
+          setShowPushModal(false);
+          fetchStats();
+        }}
+        onDecline={() => {
+          setShowPushModal(false);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -331,7 +432,103 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+  },
+  customerTrackBtn: {
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.full,
+  },
+  customerTrackText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  pushBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    marginBottom: SPACING.md,
+    ...SHADOWS.sm,
+  },
+  pushBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+    marginRight: 8,
+  },
+  pushIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pushBannerTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  pushBannerDesc: {
+    fontSize: 11,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  shiftVaultCard: {
+    marginBottom: SPACING.sm,
+    padding: 12,
+  },
+  shiftVaultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  vaultLeftCol: {
+    flex: 1,
+  },
+  vaultTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  vaultTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  vaultAmount: {
+    fontSize: 18,
+    fontWeight: '900',
+    marginTop: 2,
+  },
+  vaultSub: {
+    fontSize: 10,
+    marginTop: 2,
+  },
+  vaultActionCol: {
+    alignItems: 'flex-end',
+    gap: 6,
+  },
+  remitBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: RADIUS.sm,
+  },
+  remitBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  slaBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  slaRateText: {
+    fontSize: 10,
+    fontWeight: '800',
   },
   statusCard: {
     marginBottom: SPACING.md,
@@ -344,7 +541,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   welcomeText: {
-    color: COLORS.white,
     fontSize: 18,
     fontWeight: '800',
   },

@@ -106,6 +106,50 @@ export const TRANSLATIONS = {
     status_RETURNING: 'جاري الإرجاع',
     status_RETURNED: 'تم الإرجاع للمتجر',
 
+    // Telemetry & GPS Simulator
+    liveGpsSimulator: 'محاكي المسار والملاحة الحية',
+    speedometer: 'عداد السرعة',
+    kmh: 'كم/س',
+    etaRemaining: 'الوقت المتبقي',
+    distanceRemaining: 'المسافة المتبقية',
+    batteryLevel: 'مستوى البطارية',
+    slideConfirm: 'اسحب للتأكيد',
+    simulateMovement: 'محاكاة حركة الدراجة',
+    liveGpsActive: 'نظام التتبع الحي نشط (GPS)',
+
+    // Customer Public Tracking
+    trackOrder: 'تتبع الشحنة برقم الطلب',
+    enterTrackingCode: 'أدخل رقم الطلب (مثال: FM-2026-000123)',
+    trackNow: 'تتبع الآن',
+    demoCodes: 'شحنات تجريبية للمعاينة:',
+    showOtpToCourier: 'أظهر هذا الرمز للمندوب عند الاستلام',
+    orderTimeline: 'مسار تقدم الطلب',
+    courierAssigned: 'المندوب المكلف',
+    motorcyclePlate: 'لوحة الدراجة',
+    callCourier: 'اتصال بالمندوب',
+    printInvoice: 'طباعة الفاتورة والبيان',
+    rateDelivery: 'تقييم تجربة التوصيل',
+    tipCourier: 'إضافة إكرامية للمندوب',
+
+    // COD & Signature POD
+    codAssistant: 'حاسبة الصرف والتحصيل',
+    amountReceived: 'المبلغ المستلم من العميل',
+    changeDue: 'الباقي الواجب إرجاعه',
+    exactCash: 'المبلغ بالضبط',
+    confirmCollected: 'تأكيد استلام المبلغ بالكامل',
+    customerSignaturePad: 'توقيع العميل الإلكتروني',
+    clearSign: 'مسح التوقيع',
+    saveSign: 'حفظ وتثبيت التوقيع',
+    podPhotoCaptured: 'تم التقاط صورة إثبات التسليم',
+
+    // Emergency SOS
+    emergencySupport: 'طوارئ ومساعدة فورية',
+    breakdownFlatTire: 'عطل مفاجئ / بنشر إطار',
+    roadAccident: 'حادث طريق / إسعاف',
+    customerUnreachable: 'العميل لا يجيب على الهاتف',
+    wrongAddressReport: 'العنوان غير مطابق أو خاطئ',
+    dispatchAlertSent: 'تم إرسال إشعار الطوارئ لفريق التشغيل مع موقعك الحالي',
+
     // Common
     loading: 'جاري التحميل...',
     save: 'حفظ',
@@ -222,6 +266,50 @@ export const TRANSLATIONS = {
     status_RETURN_REQUESTED: 'RETURN REQUESTED',
     status_RETURNING: 'RETURNING',
     status_RETURNED: 'RETURNED',
+
+    // Telemetry & GPS Simulator
+    liveGpsSimulator: 'Live Route & GPS Telemetry',
+    speedometer: 'Speedometer',
+    kmh: 'km/h',
+    etaRemaining: 'Est. Remaining Time',
+    distanceRemaining: 'Remaining Distance',
+    batteryLevel: 'Battery Level',
+    slideConfirm: 'Slide to Confirm',
+    simulateMovement: 'Simulate Movement',
+    liveGpsActive: 'Live GPS Active (2.5m accuracy)',
+
+    // Customer Public Tracking
+    trackOrder: 'Track Order by Code',
+    enterTrackingCode: 'Enter Order Number (e.g. FM-2026-000123)',
+    trackNow: 'Track Now',
+    demoCodes: 'Quick Demo Orders:',
+    showOtpToCourier: 'Share this OTP code with courier upon delivery',
+    orderTimeline: 'Order Progress Timeline',
+    courierAssigned: 'Assigned Courier',
+    motorcyclePlate: 'Plate Number',
+    callCourier: 'Call Courier',
+    printInvoice: 'Print Delivery Manifest & Invoice',
+    rateDelivery: 'Rate Delivery Experience',
+    tipCourier: 'Add Courier Tip',
+
+    // COD & Signature POD
+    codAssistant: 'Cash on Delivery (COD) Assistant',
+    amountReceived: 'Cash Received from Customer',
+    changeDue: 'Change to Return',
+    exactCash: 'Exact Amount',
+    confirmCollected: 'Confirm COD Received in Full',
+    customerSignaturePad: 'Digital Customer Signature',
+    clearSign: 'Clear Signature',
+    saveSign: 'Save & Confirm Signature',
+    podPhotoCaptured: 'Proof of Delivery Photo Attached',
+
+    // Emergency SOS
+    emergencySupport: 'Emergency Roadside Assist',
+    breakdownFlatTire: 'Motorcycle Breakdown / Flat Tire',
+    roadAccident: 'Road Incident / Medical Assist',
+    customerUnreachable: 'Customer Unreachable by Phone',
+    wrongAddressReport: 'Incorrect / Inaccessible Address',
+    dispatchAlertSent: 'Emergency alert dispatched with your live coordinates',
 
     // Common
     loading: 'Loading...',

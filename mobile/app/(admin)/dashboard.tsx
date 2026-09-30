@@ -15,11 +15,13 @@ import { Card } from '../../src/components/Card';
 import { Button } from '../../src/components/Button';
 import { Badge } from '../../src/components/Badge';
 import { LanguageToggle } from '../../src/components/LanguageToggle';
+import { ThemeToggle } from '../../src/components/ThemeToggle';
+import { CompanyWorkspaceHeader } from '../../src/components/CompanyWorkspaceHeader';
 import { useAuthStore } from '../../src/store/authStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
 import { api } from '../../src/services/api';
 import { socketService } from '../../src/services/socket';
-import { COLORS, RADIUS, SPACING } from '../../src/constants/theme';
+import { COLORS, RADIUS, SPACING, SHADOWS } from '../../src/constants/theme';
 import {
   Package,
   Bike,
@@ -30,17 +32,31 @@ import {
   LogOut,
   MapPin,
   TrendingUp,
+  Zap,
+  Activity,
+  Layers,
+  Filter,
 } from 'lucide-react-native';
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const { t } = useSettingsStore();
+  const { t, colors, language } = useSettingsStore();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [summary, setSummary] = useState<any>(null);
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [activeZone, setActiveZone] = useState('ALL');
+
+  const zones = [
+    { id: 'ALL', nameAr: 'جميع النطاقات', nameEn: 'All Hubs' },
+    { id: 'DOWNTOWN', nameAr: 'وسط البلد', nameEn: 'Downtown' },
+    { id: 'NASR_CITY', nameAr: 'مدينة نصر', nameEn: 'Nasr City' },
+    { id: 'NEW_CAIRO', nameAr: 'التجمع الخامس', nameEn: 'New Cairo' },
+    { id: 'MAADI', nameAr: 'المعادي', nameEn: 'Maadi' },
+    { id: 'OCTOBER', nameAr: '6 أكتوبر', nameEn: '6th October' },
+  ];
 
   const fetchDashboardData = async () => {
     try {
@@ -78,39 +94,43 @@ export default function AdminDashboardScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         {/* Header */}
         <View style={styles.header}>
           <FastManLogo size="sm" subtitle={false} />
           <View style={styles.headerRight}>
+            <ThemeToggle />
             <LanguageToggle />
             <TouchableOpacity
               onPress={async () => {
                 await logout();
                 router.replace('/(auth)/login');
               }}
-              style={styles.logoutIconBtn}
+              style={[styles.logoutIconBtn, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
             >
-              <LogOut size={16} color={COLORS.danger} />
+              <LogOut size={16} color={colors.danger} />
             </TouchableOpacity>
           </View>
         </View>
 
+        {/* Tenant B2B SaaS Company Workspace Bar */}
+        <CompanyWorkspaceHeader />
+
         {/* Staff Welcome Banner */}
         <View style={styles.welcomeBanner}>
           <View>
-            <Text style={styles.welcomeName}>
+            <Text style={[styles.welcomeName, { color: colors.text }]}>
               {user?.name || 'Administrator'}
             </Text>
-            <Text style={styles.roleTitle}>
-              {user?.roles?.join(' • ') || 'DISPATCH CONTROL'}
+            <Text style={[styles.roleTitle, { color: colors.textSecondary }]}>
+              {user?.roles?.join(' • ') || 'CENTRAL DISPATCH COMMAND'}
             </Text>
           </View>
           <Button
@@ -120,6 +140,80 @@ export default function AdminDashboardScreen() {
             style={styles.newOrderBtn}
           />
         </View>
+
+        {/* Commercial Hub & Zone Filter Chips */}
+        <View style={styles.zonesContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.zonesScroll}>
+            {zones.map((zone) => {
+              const isActive = activeZone === zone.id;
+              return (
+                <TouchableOpacity
+                  key={zone.id}
+                  onPress={() => setActiveZone(zone.id)}
+                  style={[
+                    styles.zoneChip,
+                    {
+                      backgroundColor: isActive ? colors.primary : colors.surfaceElevated,
+                      borderColor: isActive ? colors.primary : colors.border,
+                    },
+                  ]}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={[
+                      styles.zoneChipText,
+                      { color: isActive ? '#FFFFFF' : colors.textSecondary },
+                    ]}
+                  >
+                    {language === 'ar' ? zone.nameAr : zone.nameEn}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* Fleet SLA & Dispatch Telemetry Card */}
+        <Card style={styles.telemetryCard}>
+          <View style={styles.telemetryRow}>
+            <View style={styles.telemetryItem}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Zap size={14} color={colors.success} />
+                <Text style={[styles.telemetryLabel, { color: colors.textMuted }]}>
+                  {language === 'ar' ? 'التزام SLA العام' : 'Fleet SLA Rate'}
+                </Text>
+              </View>
+              <Text style={[styles.telemetryValue, { color: colors.success }]}>98.4%</Text>
+              <Text style={[styles.telemetrySub, { color: colors.textSecondary }]}>ضمن الوقت المحدد 🟢</Text>
+            </View>
+
+            <View style={[styles.telemetryDivider, { backgroundColor: colors.border }]} />
+
+            <View style={styles.telemetryItem}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Bike size={14} color={colors.info} />
+                <Text style={[styles.telemetryLabel, { color: colors.textMuted }]}>
+                  {language === 'ar' ? 'تشغيل الأسطول' : 'Fleet Capacity'}
+                </Text>
+              </View>
+              <Text style={[styles.telemetryValue, { color: colors.text }]}>85%</Text>
+              <Text style={[styles.telemetrySub, { color: colors.textSecondary }]}>18 دراجة على الطريق</Text>
+            </View>
+
+            <View style={[styles.telemetryDivider, { backgroundColor: colors.border }]} />
+
+            <View style={styles.telemetryItem}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Activity size={14} color={colors.goldAccent} />
+                <Text style={[styles.telemetryLabel, { color: colors.textMuted }]}>
+                  {language === 'ar' ? 'التوزيع الذكي' : 'Auto Routing'}
+                </Text>
+              </View>
+              <Text style={[styles.telemetryValue, { color: colors.goldAccent }]}>نشط ⚡</Text>
+              <Text style={[styles.telemetrySub, { color: colors.textSecondary }]}>AI Dispatching</Text>
+            </View>
+          </View>
+        </Card>
 
         {loading && !summary ? (
           <View style={styles.centerBox}>
@@ -205,7 +299,7 @@ export default function AdminDashboardScreen() {
               />
               <Button
                 title={t.tabOrders}
-                onPress={() => router.push('/(admin)/orders/index')}
+                onPress={() => router.push('/(admin)/orders' as any)}
                 variant="secondary"
                 size="sm"
                 icon={<Package size={16} color={COLORS.white} />}
@@ -215,9 +309,9 @@ export default function AdminDashboardScreen() {
 
             {/* Recent Orders Section */}
             <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>RECENT ACTIVE ORDERS</Text>
-              <TouchableOpacity onPress={() => router.push('/(admin)/orders/index')}>
-                <Text style={styles.seeAllText}>See all ({summary?.kpis?.totalOrders})</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>RECENT ACTIVE ORDERS</Text>
+              <TouchableOpacity onPress={() => router.push('/(admin)/orders' as any)}>
+                <Text style={styles.seeAllText}>See all ({summary?.kpis?.totalOrders || 0})</Text>
               </TouchableOpacity>
             </View>
 
@@ -230,13 +324,13 @@ export default function AdminDashboardScreen() {
                 <Card style={styles.recentOrderCard}>
                   <View style={styles.recentHeader}>
                     <View>
-                      <Text style={styles.recentOrderNum}>{ord.orderNumber}</Text>
-                      <Text style={styles.recentCustomer}>{ord.customer?.name}</Text>
+                      <Text style={[styles.recentOrderNum, { color: colors.text }]}>{ord.orderNumber}</Text>
+                      <Text style={[styles.recentCustomer, { color: colors.textSecondary }]}>{ord.customer?.name}</Text>
                     </View>
                     <Badge status={ord.status} />
                   </View>
                   <View style={styles.recentFooter}>
-                    <Text style={styles.recentCourier}>
+                    <Text style={[styles.recentCourier, { color: colors.textMuted }]}>
                       🛵 Courier: {ord.courier?.user?.name || 'Unassigned'}
                     </Text>
                     <Text style={styles.recentFee}>
@@ -294,6 +388,52 @@ const styles = StyleSheet.create({
   },
   newOrderBtn: {
     paddingHorizontal: 16,
+  },
+  zonesContainer: {
+    marginBottom: SPACING.md,
+  },
+  zonesScroll: {
+    gap: 8,
+  },
+  zoneChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+  },
+  zoneChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  telemetryCard: {
+    marginBottom: SPACING.md,
+    padding: 12,
+  },
+  telemetryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  telemetryItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  telemetryLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  telemetryValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    marginVertical: 2,
+  },
+  telemetrySub: {
+    fontSize: 9,
+    fontWeight: '600',
+  },
+  telemetryDivider: {
+    width: 1,
+    height: 36,
   },
   kpiGrid: {
     flexDirection: 'row',
@@ -372,7 +512,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   sectionTitle: {
-    color: COLORS.white,
     fontSize: 14,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -393,12 +532,10 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   recentOrderNum: {
-    color: COLORS.white,
     fontSize: 15,
     fontWeight: '800',
   },
   recentCustomer: {
-    color: COLORS.textSecondary,
     fontSize: 12,
     marginTop: 2,
   },
@@ -412,7 +549,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   recentCourier: {
-    color: COLORS.textMuted,
     fontSize: 11,
   },
   recentFee: {

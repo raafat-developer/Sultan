@@ -7,12 +7,12 @@ import { Button } from '../../src/components/Button';
 import { useAuthStore } from '../../src/store/authStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
 import { COLORS, RADIUS, SPACING } from '../../src/constants/theme';
-import { User, Phone, Mail, Bike, Globe, LogOut } from 'lucide-react-native';
+import { User, Phone, Mail, Bike, Globe, LogOut, Sun, Moon } from 'lucide-react-native';
 
 export default function CourierProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const { t, language, setLanguage } = useSettingsStore();
+  const { t, language, setLanguage, theme, toggleTheme, colors } = useSettingsStore();
 
   const handleLogout = async () => {
     Alert.alert(t.logout, 'Are you sure you want to sign out?', [
@@ -29,34 +29,34 @@ export default function CourierProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <View style={styles.container}>
-        <Text style={styles.title}>{t.tabProfile}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t.tabProfile}</Text>
 
         {/* Profile Card */}
         <Card style={styles.profileCard}>
-          <View style={styles.avatarCircle}>
-            <User size={32} color={COLORS.white} />
+          <View style={[styles.avatarCircle, { backgroundColor: colors.primary }]}>
+            <User size={32} color="#FFFFFF" />
           </View>
-          <Text style={styles.name}>{user?.name}</Text>
-          <Text style={styles.roleBadge}>COURIER FLEET</Text>
+          <Text style={[styles.name, { color: colors.text }]}>{user?.name}</Text>
+          <Text style={[styles.roleBadge, { color: colors.primary }]}>COURIER FLEET</Text>
         </Card>
 
         {/* Details Card */}
         <Card style={styles.detailsCard}>
           <View style={styles.infoRow}>
-            <Phone size={18} color={COLORS.primary} />
-            <Text style={styles.infoText}>{user?.phone}</Text>
+            <Phone size={18} color={colors.primary} />
+            <Text style={[styles.infoText, { color: colors.textSecondary }]}>{user?.phone}</Text>
           </View>
           {user?.email && (
             <View style={styles.infoRow}>
-              <Mail size={18} color={COLORS.primary} />
-              <Text style={styles.infoText}>{user?.email}</Text>
+              <Mail size={18} color={colors.primary} />
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>{user?.email}</Text>
             </View>
           )}
           <View style={styles.infoRow}>
-            <Bike size={18} color={COLORS.primary} />
-            <Text style={styles.infoText}>
+            <Bike size={18} color={colors.primary} />
+            <Text style={[styles.infoText, { color: colors.textSecondary }]}>
               {user?.vehicleType || 'MOTORCYCLE'} {user?.plateNumber ? `(${user.plateNumber})` : ''}
             </Text>
           </View>
@@ -64,15 +64,36 @@ export default function CourierProfileScreen() {
 
         {/* Settings */}
         <Card style={styles.settingsCard}>
+          {/* Theme Row */}
+          <TouchableOpacity
+            style={[styles.settingRow, { marginBottom: 16 }]}
+            onPress={toggleTheme}
+            activeOpacity={0.8}
+          >
+            <View style={styles.settingLabelGroup}>
+              {theme === 'dark' ? <Moon size={18} color="#00E5FF" /> : <Sun size={18} color="#E50914" />}
+              <Text style={[styles.settingLabel, { color: colors.text }]}>
+                {language === 'ar' ? 'المظهر (Theme)' : 'Theme Mode'}
+              </Text>
+            </View>
+            <Text style={[styles.settingValue, { color: colors.primary }]}>
+              {theme === 'dark' ? (language === 'ar' ? 'الوضع الليلي (Dark)' : 'Dark Mode') : (language === 'ar' ? 'الوضع النهاري (Light)' : 'Light Mode')}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={{ height: 1, backgroundColor: colors.border, marginBottom: 16 }} />
+
+          {/* Language Row */}
           <TouchableOpacity
             style={styles.settingRow}
             onPress={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            activeOpacity={0.8}
           >
             <View style={styles.settingLabelGroup}>
-              <Globe size={18} color={COLORS.info} />
-              <Text style={styles.settingLabel}>{t.language}</Text>
+              <Globe size={18} color={colors.info} />
+              <Text style={[styles.settingLabel, { color: colors.text }]}>{t.language}</Text>
             </View>
-            <Text style={styles.settingValue}>
+            <Text style={[styles.settingValue, { color: colors.primary }]}>
               {language === 'ar' ? 'العربية' : 'English'}
             </Text>
           </TouchableOpacity>
@@ -84,7 +105,7 @@ export default function CourierProfileScreen() {
           onPress={handleLogout}
           variant="danger"
           size="lg"
-          icon={<LogOut size={18} color={COLORS.white} />}
+          icon={<LogOut size={18} color="#FFFFFF" />}
           style={styles.logoutBtn}
         />
       </View>

@@ -8,7 +8,8 @@ import {
   TextStyle,
   View,
 } from 'react-native';
-import { COLORS, RADIUS, SHADOWS, SPACING } from '../constants/theme';
+import { RADIUS, SHADOWS, SPACING } from '../constants/theme';
+import { useSettingsStore } from '../store/settingsStore';
 
 interface ButtonProps {
   title: string;
@@ -33,33 +34,35 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
+  const { colors } = useSettingsStore();
+
   const getBackgroundColor = () => {
-    if (disabled) return COLORS.surfaceElevated;
+    if (disabled) return colors.surfaceElevated;
     switch (variant) {
       case 'primary':
-        return COLORS.primary;
+        return colors.primary;
       case 'secondary':
-        return COLORS.surfaceElevated;
+        return colors.surfaceElevated;
       case 'outline':
         return 'transparent';
       case 'danger':
-        return COLORS.danger;
+        return colors.danger;
       case 'success':
-        return COLORS.success;
+        return colors.success;
       default:
-        return COLORS.primary;
+        return colors.primary;
     }
   };
 
   const getTextColor = () => {
-    if (disabled) return COLORS.textMuted;
+    if (disabled) return colors.textMuted;
     switch (variant) {
       case 'outline':
-        return COLORS.primary;
+        return colors.primary;
       case 'secondary':
-        return COLORS.text;
+        return colors.text;
       default:
-        return COLORS.white;
+        return '#FFFFFF';
     }
   };
 
